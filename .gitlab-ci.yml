@@ -1,4 +1,30 @@
 stages:
   - build
+  - package
   - deploy
-...
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+# Build stage for Spring Boot application
+build_app:
+  stage: build
+  script:
+    - cd spring-boot-app
+    - mvn clean package
+
+# Package stage for Docker
+package:
+  stage: package
+  script:
+    - cd spring-boot-app
+    - docker build -t example/spring-boot-app:$CI_COMMIT_REF_NAME .
+    - docker push example/spring-boot-app:$CI_COMMIT_REF_NAME
+
+# Deploy stage for Helm and Kubernetes
+deploy:
+  stage: deploy
+  script:
+    - helm lint helm-chart/
+    - helm package helm-chart/
+    - helm upgrade --install spring-boot-app helm-chart/ --set image.tag=$CI_COMMIT_REF_NAME

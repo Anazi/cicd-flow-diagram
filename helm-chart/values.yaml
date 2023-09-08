@@ -1,0 +1,7 @@
+# Default values for the Helm Chart
+
+replicaCount: 1
+
+image:
+  repository: example/spring-boot-app
+  tag: "0.0.1-SNAPSHOT"
